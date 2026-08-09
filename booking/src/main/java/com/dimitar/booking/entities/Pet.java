@@ -15,6 +15,9 @@ public class Pet {
 
     private String notes;
 
+    @Enumerated(EnumType.STRING)
+    private DogSize size;
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -22,10 +25,11 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(String name, String breed, String notes, User owner) {
+    public Pet(String name, String breed, String notes, DogSize size, User owner) {
         this.name = name;
         this.breed = breed;
         this.notes = notes;
+        this.size = size;
         this.owner = owner;
     }
 
@@ -59,6 +63,14 @@ public class Pet {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public DogSize getSize() {
+        return size;
+    }
+
+    public void setSize(DogSize size) {
+        this.size = size;
     }
 
     public User getOwner() {

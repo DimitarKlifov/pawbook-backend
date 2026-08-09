@@ -2,8 +2,6 @@ package com.dimitar.booking.entities;
 
 import jakarta.persistence.*;
 
-import java.math.BigDecimal;
-
 @Entity
 public class GroomingService {
     @Id
@@ -11,10 +9,6 @@ public class GroomingService {
     private Long id;
 
     private String name;
-
-    private int durationMinutes;
-
-    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "groomer_id")
@@ -24,10 +18,8 @@ public class GroomingService {
     public GroomingService() {
     }
 
-    public GroomingService(String name, int durationMinutes, BigDecimal price, Groomer groomer) {
+    public GroomingService(String name, Groomer groomer) {
         this.name = name;
-        this.durationMinutes = durationMinutes;
-        this.price = price;
         this.groomer = groomer;
     }
 
@@ -45,22 +37,6 @@ public class GroomingService {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getDurationMinutes() {
-        return durationMinutes;
-    }
-
-    public void setDurationMinutes(int durationMinutes) {
-        this.durationMinutes = durationMinutes;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
     }
 
     public Groomer getGroomer() {
