@@ -26,6 +26,11 @@ public class User {
         CLIENT, GROOMER
     }
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+    private String verificationToken;
+
     public User() {
     }
 
@@ -83,5 +88,21 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
     }
 }
