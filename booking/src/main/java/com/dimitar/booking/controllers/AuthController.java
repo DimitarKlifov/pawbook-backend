@@ -32,7 +32,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token", jwt));
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password){
         String jwt = authService.login(email,password);
         return ResponseEntity.ok(Map.of("token" , jwt));

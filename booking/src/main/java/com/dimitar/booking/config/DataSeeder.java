@@ -4,6 +4,7 @@ import com.dimitar.booking.entities.*;
 import com.dimitar.booking.repositories.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,21 +19,22 @@ public class DataSeeder implements CommandLineRunner {
     private final GroomingServiceRepository groomingServiceRepository;
     private final ServicePricingRepository servicePricingRepository;
     private final WorkDayRepository workDayRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataSeeder(UserRepository userRepository, GroomerRepository groomerRepository,
-                      PetRepository petRepository, GroomingServiceRepository groomingServiceRepository,
-                      ServicePricingRepository servicePricingRepository, WorkDayRepository workDayRepository) {
+    public DataSeeder(UserRepository userRepository, GroomerRepository groomerRepository, PetRepository petRepository, GroomingServiceRepository groomingServiceRepository, ServicePricingRepository servicePricingRepository, WorkDayRepository workDayRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.groomerRepository = groomerRepository;
         this.petRepository = petRepository;
         this.groomingServiceRepository = groomingServiceRepository;
         this.servicePricingRepository = servicePricingRepository;
         this.workDayRepository = workDayRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        User anaUser = new User("Ana", "ana@example.com", "placeholder", "070123456", User.Role.GROOMER);
+        User anaUser = new User("Ana", "ana@example.com", passwordEncoder.encode("GroomerPass123!"), "070123456", User.Role.GROOMER);
+        anaUser.setEmailVerified(true);
         anaUser = userRepository.save(anaUser);
 
         Groomer groomer = new Groomer(anaUser);
