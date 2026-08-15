@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.SplittableRandom;
 import java.util.UUID;
 
@@ -80,5 +81,45 @@ public class AuthService {
         mailSender.send(message);
     }
 
+    public void forgotPassword(String email){
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null){
+            return;
+        }
+
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        sendResetEmail(user.getEmail(), token);
+    }
+
+    public void resetPassword(String token, String newPassword){
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
+
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(LocalDateTime.now())){
+            throw new IllegalArgumentException("Invalid or expired reset token");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
+
+
+    private void sendResetEmail(String toEmail, String token){
+        String resetLink = "http://localhost:8080/auth/reset-password?token=" + token;
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Reset your password - PawBook");
+        message.setText("Click the link below to reset your password.This link expires in 1 hour:\n\n" + resetLink);
+
+        mailSender.send(message);
+    }
 
 }
