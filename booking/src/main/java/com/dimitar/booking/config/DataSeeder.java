@@ -40,7 +40,13 @@ public class DataSeeder implements CommandLineRunner {
         Groomer groomer = new Groomer(anaUser);
         groomer = groomerRepository.save(groomer);
 
-        User markoUser = new User("Marko", "marko@example.com", "placeholder", "070999888", User.Role.CLIENT);
+        User client2User = new User("Second Client", "client2@test.com", passwordEncoder.encode("Test1234!"), "070222333", User.Role.CLIENT);
+        client2User.setEmailVerified(true);
+        client2User = userRepository.save(client2User);
+
+
+        User markoUser = new User("Marko", "marko@example.com", passwordEncoder.encode("Test1234!"), "070999888", User.Role.CLIENT);
+        markoUser.setEmailVerified(true);
         markoUser = userRepository.save(markoUser);
 
         Pet rex = new Pet("Rex", "Labrador", "Very friendly, loves treats", DogSize.LARGE, markoUser);
@@ -57,6 +63,7 @@ public class DataSeeder implements CommandLineRunner {
 
         System.out.println("=== Seed data loaded ===");
         System.out.println("Groomer user id: " + anaUser.getId());
+        System.out.println("Client 2 user id: " + client2User.getId() + " (email: client2@test.com, password: Test1234!)");
         System.out.println("Client user id: " + markoUser.getId());
         System.out.println("Pet id: " + rex.getId());
         System.out.println("Service id: " + fullGroom.getId());

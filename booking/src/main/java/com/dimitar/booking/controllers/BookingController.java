@@ -40,9 +40,9 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
-    @GetMapping("/booking/client/{clientId}")
-    public ResponseEntity<List<BookingResponse>> getBookingsByClient(@PathVariable Long clientId){
-        return ResponseEntity.ok(bookingService.getBookingsByClient(clientId));
+    @GetMapping("/booking/mine")
+    public ResponseEntity<List<BookingResponse>> getMyBookings(){
+        return ResponseEntity.ok(bookingService.getMyBookings());
     }
 
     @PutMapping("/bookings/{id}/cancel")

@@ -8,9 +8,6 @@ import java.time.LocalTime;
 
 public class BookingRequest {
     @NotNull
-    private Long clientId;
-
-    @NotNull
     private Long petId;
 
     @NotNull
@@ -22,13 +19,6 @@ public class BookingRequest {
     @NotNull
     private LocalTime startTime;
 
-    public Long getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(Long clientId) {
-        this.clientId = clientId;
-    }
 
     public Long getPetId() {
         return petId;

@@ -1,5 +1,6 @@
 package com.dimitar.booking.services;
 
+import com.dimitar.booking.config.CurrentUserProvider;
 import com.dimitar.booking.dto.AvailabilityResponse;
 import com.dimitar.booking.dto.BookingRequest;
 import com.dimitar.booking.dto.BookingResponse;
@@ -23,8 +24,9 @@ public class BookingService {
     private final ServicePricingRepository servicePricingRepository;
     private final WorkDayRepository workDayRepository;
     private final UserRepository userRepository;
+    private final CurrentUserProvider currentUserProvider;
 
-    public BookingService(BookingRepository bookingRepository, GroomerRepository groomerRepository, PetRepository petRepository, GroomingServiceRepository groomingServiceRepository, ServicePricingRepository servicePricingRepository, WorkDayRepository workDayRepository, UserRepository userRepository) {
+    public BookingService(BookingRepository bookingRepository, GroomerRepository groomerRepository, PetRepository petRepository, GroomingServiceRepository groomingServiceRepository, ServicePricingRepository servicePricingRepository, WorkDayRepository workDayRepository, UserRepository userRepository, CurrentUserProvider currentUserProvider) {
         this.bookingRepository = bookingRepository;
         this.groomerRepository = groomerRepository;
         this.petRepository = petRepository;
@@ -32,15 +34,16 @@ public class BookingService {
         this.servicePricingRepository = servicePricingRepository;
         this.workDayRepository = workDayRepository;
         this.userRepository = userRepository;
+        this.currentUserProvider = currentUserProvider;
     }
 
     public AvailabilityResponse getAvailability(LocalDate date, Long serviceId, Long petId){
+        // unchanged - keep exactly as you have it
         WorkDay workDay = workDayRepository.findByDate(date).orElse(null);
 
         if (workDay == null || !workDay.isOpen()){
             return new AvailabilityResponse(false, List.of());
         }
-
 
         Pet pet = petRepository.findById(petId)
                 .orElseThrow(() -> new IllegalArgumentException("Pet not found: " + petId));
@@ -50,7 +53,6 @@ public class BookingService {
 
         ServicePricing pricing = servicePricingRepository.findByGroomingServiceAndDogSize(service, pet.getSize())
                 .orElseThrow(() -> new IllegalArgumentException("No pricing set for this service and pet size"));
-
 
         int durationMinutes = pricing.getDurationMinutes();
 
@@ -83,7 +85,7 @@ public class BookingService {
             slotStart = slotStart.plusMinutes(durationMinutes);
         }
 
-        return  new AvailabilityResponse(true,availableSlots);
+        return new AvailabilityResponse(true, availableSlots);
     }
 
     public BookingResponse createBooking(BookingRequest request){
@@ -94,11 +96,14 @@ public class BookingService {
             throw new IllegalArgumentException("Groomer is closed on this date: " + request.getDate());
         }
 
-        User client = userRepository.findById(request.getClientId())
-                .orElseThrow(() -> new IllegalArgumentException("Client not found: " + request.getClientId()));
+        User client = currentUserProvider.getCurrentUser();
 
         Pet pet = petRepository.findById(request.getPetId())
                 .orElseThrow(() -> new IllegalArgumentException("Pet not found: " + request.getPetId()));
+
+        if (pet.getOwner().getId() != client.getId()) {
+            throw new IllegalArgumentException("You can only book appointments for your own pets");
+        }
 
         GroomingService service = groomingServiceRepository.findById(request.getServiceId())
                 .orElseThrow(() -> new IllegalArgumentException("Service not found: " + request.getServiceId()));
@@ -131,14 +136,15 @@ public class BookingService {
             throw new IllegalArgumentException("This time slot is already booked");
         }
 
-        Booking booking = new Booking(client,groomer,service,pet,requestedStart,requestedEnd,BookingStatus.CONFIRMED);
+        Booking booking = new Booking(client, groomer, service, pet, requestedStart, requestedEnd, BookingStatus.CONFIRMED);
         Booking saved = bookingRepository.save(booking);
 
         return toResponse(saved);
     }
 
-    public List<BookingResponse> getBookingsByClient(Long clientId){
-        return bookingRepository.findByClientId(clientId).stream()
+    public List<BookingResponse> getMyBookings(){
+        User currentUser = currentUserProvider.getCurrentUser();
+        return bookingRepository.findByClientId(currentUser.getId()).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -149,17 +155,23 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
-
     public BookingResponse cancelBooking(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + id));
+
+        User currentUser = currentUserProvider.getCurrentUser();
+        boolean isOwner = booking.getClient().getId() == currentUser.getId();
+        boolean isGroomer = currentUser.getRole() == User.Role.GROOMER;
+
+        if (!isOwner && !isGroomer) {
+            throw new IllegalArgumentException("You do not have permission to cancel this booking");
+        }
 
         booking.setStatus(BookingStatus.CANCELLED);
         Booking saved = bookingRepository.save(booking);
 
         return toResponse(saved);
     }
-
 
     private BookingResponse toResponse(Booking booking) {
         return new BookingResponse(
