@@ -16,8 +16,6 @@ public class PetRequest {
     @NotNull
     private DogSize size;
 
-    @NotNull
-    private Long ownerId;
 
     public String getName() {
         return name;
@@ -51,11 +49,4 @@ public class PetRequest {
         this.size = size;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
 }
