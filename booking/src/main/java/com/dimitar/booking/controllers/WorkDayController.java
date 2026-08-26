@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,11 @@ public class WorkDayController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WorkDayResponse>> getAllWorkDays(){
+    public ResponseEntity<List<WorkDayResponse>> getWorkDays(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
+        if (month != null) {
+            return ResponseEntity.ok(workDayService.getWorkDaysByMonth(month));
+        }
         return ResponseEntity.ok(workDayService.getAllWorkDays());
     }
 

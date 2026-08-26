@@ -8,6 +8,7 @@ import com.dimitar.booking.repositories.WorkDayRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,15 @@ public class WorkDayService {
                 .orElseThrow(() -> new IllegalArgumentException("No WorkDay found for date: " + date));
 
         return toResponse(workDay);
+    }
+
+    public List<WorkDayResponse> getWorkDaysByMonth(YearMonth month) {
+        LocalDate start = month.atDay(1);
+        LocalDate end = month.atEndOfMonth();
+
+        return workDayRepository.findByDateBetween(start, end).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
 
