@@ -4,6 +4,7 @@ import com.dimitar.booking.entities.*;
 import com.dimitar.booking.repositories.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Configuration
+@Profile("dev")
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;

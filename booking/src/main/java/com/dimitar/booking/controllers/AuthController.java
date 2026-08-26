@@ -1,8 +1,6 @@
 package com.dimitar.booking.controllers;
 
-import com.dimitar.booking.dto.ForgotPasswordRequest;
-import com.dimitar.booking.dto.RegisterRequest;
-import com.dimitar.booking.dto.ResetPasswordRequest;
+import com.dimitar.booking.dto.*;
 import com.dimitar.booking.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -35,8 +33,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password){
-        String jwt = authService.login(email,password);
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest request){
+        String jwt = authService.login(request.getEmail(), request.getPassword());
         return ResponseEntity.ok(Map.of("token" , jwt));
     }
 
@@ -50,5 +48,11 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request){
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok("Password reset successfully. You can now log in with new password.");
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        UserResponse response = authService.updateProfile(request);
+        return ResponseEntity.ok(response);
     }
 }

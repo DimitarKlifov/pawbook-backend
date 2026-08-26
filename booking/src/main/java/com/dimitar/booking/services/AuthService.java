@@ -1,7 +1,10 @@
 package com.dimitar.booking.services;
 
+import com.dimitar.booking.config.CurrentUserProvider;
 import com.dimitar.booking.config.JwtUtil;
 import com.dimitar.booking.dto.RegisterRequest;
+import com.dimitar.booking.dto.UpdateProfileRequest;
+import com.dimitar.booking.dto.UserResponse;
 import com.dimitar.booking.entities.User;
 import com.dimitar.booking.repositories.UserRepository;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,13 +23,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
     private final JwtUtil jwtUtil;
+    private final CurrentUserProvider currentUserProvider;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JavaMailSender mailSender, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JavaMailSender mailSender, JwtUtil jwtUtil, CurrentUserProvider currentUserProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender;
         this.jwtUtil = jwtUtil;
+        this.currentUserProvider = currentUserProvider;
     }
+
 
     public void register(RegisterRequest request){
         if (userRepository.findByEmail(request.getEmail()).isPresent()){
@@ -120,6 +126,22 @@ public class AuthService {
         message.setText("Click the link below to reset your password.This link expires in 1 hour:\n\n" + resetLink);
 
         mailSender.send(message);
+    }
+
+
+    public UserResponse updateProfile(UpdateProfileRequest request) {
+        User currentUser = currentUserProvider.getCurrentUser();
+
+        currentUser.setName(request.getName());
+        currentUser.setPhoneNumber(request.getPhoneNumber());
+
+        if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
+            currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+
+        User saved = userRepository.save(currentUser);
+
+        return new UserResponse(saved.getId(), saved.getName(), saved.getEmail(), saved.getPhoneNumber(), saved.getRole());
     }
 
 }
