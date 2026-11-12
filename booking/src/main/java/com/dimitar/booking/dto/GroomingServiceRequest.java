@@ -4,13 +4,24 @@ import jakarta.validation.constraints.NotBlank;
 
 public class GroomingServiceRequest {
     @NotBlank
-    private String name;
+    private String nameMk;
 
-    public String getName() {
-        return name;
+    @NotBlank
+    private String nameEn;
+
+    public String getNameMk() {
+        return nameMk;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNameMk(String nameMk) {
+        this.nameMk = nameMk;
+    }
+
+    public String getNameEn() {
+        return nameEn;
+    }
+
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
     }
 }

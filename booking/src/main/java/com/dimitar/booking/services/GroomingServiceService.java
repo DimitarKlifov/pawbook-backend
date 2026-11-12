@@ -32,7 +32,7 @@ public class GroomingServiceService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("No groomer found in the system"));
 
-        GroomingService service = new GroomingService(request.getName(), groomer);
+        GroomingService service = new GroomingService(request.getNameMk(), request.getNameEn(), groomer);
         GroomingService saved = groomingServiceRepository.save(service);
 
         return toResponse(saved);
@@ -67,11 +67,24 @@ public class GroomingServiceService {
     }
 
     public void deleteService(Long id){
-        if(!groomingServiceRepository.existsById(id)){
-            throw new IllegalArgumentException("Service not found: " + id);
-        }
+        GroomingService service = groomingServiceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Service not found: " + id));
+
+        List<ServicePricing> pricingList = servicePricingRepository.findByGroomingService(service);
+        servicePricingRepository.deleteAll(pricingList);
 
         groomingServiceRepository.deleteById(id);
+    }
+
+    public GroomingServiceResponse updateService(Long id, GroomingServiceRequest request) {
+        GroomingService service = groomingServiceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Service not found: " + id));
+
+        service.setNameMk(request.getNameMk());
+        service.setNameEn(request.getNameEn());
+        GroomingService saved = groomingServiceRepository.save(service);
+
+        return toResponse(saved);
     }
 
     private GroomingServiceResponse toResponse(GroomingService service){
@@ -80,6 +93,6 @@ public class GroomingServiceService {
                 .map(p -> new ServicePricingResponse(p.getDogSize(),p.getPrice(),p.getDurationMinutes()))
                 .collect(Collectors.toList());
 
-        return new GroomingServiceResponse(service.getId(), service.getName(),pricingResponses);
+        return new GroomingServiceResponse(service.getId(), service.getNameMk(), service.getNameEn(), pricingResponses);
     }
 }

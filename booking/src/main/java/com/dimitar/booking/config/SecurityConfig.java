@@ -47,6 +47,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/gallery/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/gallery").hasRole("GROOMER")
                         .requestMatchers(HttpMethod.DELETE, "/gallery/**").hasRole("GROOMER")
+                        .requestMatchers(HttpMethod.GET, "/site-images").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/site-images/**").hasRole("GROOMER")
+                        .requestMatchers(HttpMethod.PUT, "/site-images/**").hasRole("GROOMER")
+                        .requestMatchers(HttpMethod.PUT, "/gallery/**").hasRole("GROOMER")
+                        .requestMatchers(HttpMethod.PUT, "/services/**").hasRole("GROOMER")
 
                         .anyRequest().authenticated()
                 )

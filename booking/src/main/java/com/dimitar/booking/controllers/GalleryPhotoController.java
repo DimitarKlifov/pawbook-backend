@@ -35,4 +35,10 @@ public class GalleryPhotoController {
         galleryPhotoService.deletePhoto(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<GalleryPhotoResponse> updateBreed(@PathVariable Long id, @RequestParam("breed") String breed) {
+        GalleryPhotoResponse response = galleryPhotoService.updateBreed(id, breed);
+        return ResponseEntity.ok(response);
+    }
 }

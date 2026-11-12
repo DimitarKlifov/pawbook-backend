@@ -5,12 +5,14 @@ import java.util.List;
 public class GroomingServiceResponse {
 
     private Long id;
-    private String name;
+    private String nameMk;
+    private String nameEn;
     private List<ServicePricingResponse> pricing;
 
-    public GroomingServiceResponse(Long id, String name, List<ServicePricingResponse> pricing) {
+    public GroomingServiceResponse(Long id, String nameMk, String nameEn, List<ServicePricingResponse> pricing) {
         this.id = id;
-        this.name = name;
+        this.nameMk = nameMk;
+        this.nameEn = nameEn;
         this.pricing = pricing;
     }
 
@@ -18,8 +20,12 @@ public class GroomingServiceResponse {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getNameMk() {
+        return nameMk;
+    }
+
+    public String getNameEn() {
+        return nameEn;
     }
 
     public List<ServicePricingResponse> getPricing() {

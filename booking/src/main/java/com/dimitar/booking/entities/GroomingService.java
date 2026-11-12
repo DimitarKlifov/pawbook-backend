@@ -8,7 +8,8 @@ public class GroomingService {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String nameMk;
+    private String nameEn;
 
     @ManyToOne
     @JoinColumn(name = "groomer_id")
@@ -18,8 +19,9 @@ public class GroomingService {
     public GroomingService() {
     }
 
-    public GroomingService(String name, Groomer groomer) {
-        this.name = name;
+    public GroomingService(String nameMk, String nameEn, Groomer groomer) {
+        this.nameMk = nameMk;
+        this.nameEn = nameEn;
         this.groomer = groomer;
     }
 
@@ -31,12 +33,20 @@ public class GroomingService {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNameMk() {
+        return nameMk;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNameMk(String nameMk) {
+        this.nameMk = nameMk;
+    }
+
+    public String getNameEn() {
+        return nameEn;
+    }
+
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
     }
 
     public Groomer getGroomer() {

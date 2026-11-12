@@ -35,6 +35,11 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        if (userRepository.count() > 0) {
+            System.out.println("=== Seed data already present, skipping ===");
+            return;
+        }
+
         User anaUser = new User("Ana", "ana@example.com", passwordEncoder.encode("GroomerPass123!"), "070123456", User.Role.GROOMER);
         anaUser.setEmailVerified(true);
         anaUser = userRepository.save(anaUser);
@@ -54,11 +59,26 @@ public class DataSeeder implements CommandLineRunner {
         Pet rex = new Pet("Rex", "Labrador", "Very friendly, loves treats", DogSize.LARGE, markoUser);
         rex = petRepository.save(rex);
 
-        GroomingService fullGroom = new GroomingService("Full Groom", groomer);
+        // Full Groom - all sizes
+        GroomingService fullGroom = new GroomingService("Целосно чешлање", "Full Groom", groomer);
         fullGroom = groomingServiceRepository.save(fullGroom);
+        servicePricingRepository.save(new ServicePricing(fullGroom, DogSize.SMALL, new BigDecimal("20.00"), 45));
+        servicePricingRepository.save(new ServicePricing(fullGroom, DogSize.MEDIUM, new BigDecimal("28.00"), 60));
+        servicePricingRepository.save(new ServicePricing(fullGroom, DogSize.LARGE, new BigDecimal("35.00"), 75));
 
-        ServicePricing largePricing = new ServicePricing(fullGroom, DogSize.LARGE, new BigDecimal("35.00"), 60);
-        servicePricingRepository.save(largePricing);
+        // Bath & Brush - all sizes
+        GroomingService bathAndBrush = new GroomingService("Капење и чешлање", "Bath & Brush", groomer);
+        bathAndBrush = groomingServiceRepository.save(bathAndBrush);
+        servicePricingRepository.save(new ServicePricing(bathAndBrush, DogSize.SMALL, new BigDecimal("12.00"), 30));
+        servicePricingRepository.save(new ServicePricing(bathAndBrush, DogSize.MEDIUM, new BigDecimal("16.00"), 40));
+        servicePricingRepository.save(new ServicePricing(bathAndBrush, DogSize.LARGE, new BigDecimal("20.00"), 50));
+
+        // Nail Trim - all sizes
+        GroomingService nailTrim = new GroomingService("Стрижење нокти", "Nail Trim", groomer);
+        nailTrim = groomingServiceRepository.save(nailTrim);
+        servicePricingRepository.save(new ServicePricing(nailTrim, DogSize.SMALL, new BigDecimal("8.00"), 15));
+        servicePricingRepository.save(new ServicePricing(nailTrim, DogSize.MEDIUM, new BigDecimal("8.00"), 15));
+        servicePricingRepository.save(new ServicePricing(nailTrim, DogSize.LARGE, new BigDecimal("10.00"), 20));
 
         WorkDay today = new WorkDay(LocalDate.now(), true, LocalTime.of(9, 0), LocalTime.of(17, 0));
         workDayRepository.save(today);
@@ -68,7 +88,7 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("Client 2 user id: " + client2User.getId() + " (email: client2@test.com, password: Test1234!)");
         System.out.println("Client user id: " + markoUser.getId());
         System.out.println("Pet id: " + rex.getId());
-        System.out.println("Service id: " + fullGroom.getId());
+        System.out.println("Services: Full Groom, Bath & Brush, Nail Trim (all with SMALL/MEDIUM/LARGE pricing)");
         System.out.println("Today marked open, 9:00-17:00");
     }
 }

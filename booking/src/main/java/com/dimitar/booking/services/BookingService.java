@@ -38,7 +38,6 @@ public class BookingService {
     }
 
     public AvailabilityResponse getAvailability(LocalDate date, Long serviceId, Long petId){
-        // unchanged - keep exactly as you have it
         WorkDay workDay = workDayRepository.findByDate(date).orElse(null);
 
         if (workDay == null || !workDay.isOpen()){
@@ -144,13 +143,17 @@ public class BookingService {
 
     public List<BookingResponse> getMyBookings(){
         User currentUser = currentUserProvider.getCurrentUser();
-        return bookingRepository.findByClientId(currentUser.getId()).stream()
+        List<Booking> bookings = bookingRepository.findByClientId(currentUser.getId());
+        bookings.forEach(this::autoCompleteIfPast);
+        return bookings.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     public List<BookingResponse> getAllBookings(){
-        return bookingRepository.findAll().stream()
+        List<Booking> bookings = bookingRepository.findAll();
+        bookings.forEach(this::autoCompleteIfPast);
+        return bookings.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -167,17 +170,34 @@ public class BookingService {
             throw new IllegalArgumentException("You do not have permission to cancel this booking");
         }
 
+        autoCompleteIfPast(booking);
+
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new IllegalArgumentException("This booking has already been completed and can't be cancelled");
+        }
+
         booking.setStatus(BookingStatus.CANCELLED);
         Booking saved = bookingRepository.save(booking);
 
         return toResponse(saved);
     }
 
+    private void autoCompleteIfPast(Booking booking) {
+        if (booking.getStatus() == BookingStatus.CONFIRMED && booking.getEndTime().isBefore(LocalDateTime.now())) {
+            booking.setStatus(BookingStatus.COMPLETED);
+            bookingRepository.save(booking);
+        }
+    }
+
     private BookingResponse toResponse(Booking booking) {
         return new BookingResponse(
                 booking.getId(),
                 booking.getPet().getName(),
-                booking.getService().getName(),
+                booking.getPet().getSize(),
+                booking.getClient().getName(),
+                booking.getClient().getPhoneNumber(),
+                booking.getService().getNameMk(),
+                booking.getService().getNameEn(),
                 booking.getStartTime(),
                 booking.getEndTime(),
                 booking.getStatus()

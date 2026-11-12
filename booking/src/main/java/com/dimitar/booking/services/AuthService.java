@@ -36,7 +36,7 @@ public class AuthService {
 
     public void register(RegisterRequest request){
         if (userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw new IllegalArgumentException("Email already registered: " + request.getEmail());
+            throw new IllegalArgumentException("Email already registered." );
         }
 
         User user = new User(request.getName(), request.getEmail(), passwordEncoder.encode(request.getPassword()), request.getPhoneNumber(), User.Role.CLIENT);
@@ -77,7 +77,7 @@ public class AuthService {
     }
 
     public void sendVerificationEmail(String toEmail, String token){
-        String verificationLink = "http://localhost:8080/auth/verify?token=" + token;
+        String verificationLink = "http://localhost:5173/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
@@ -118,7 +118,7 @@ public class AuthService {
 
 
     private void sendResetEmail(String toEmail, String token){
-        String resetLink = "http://localhost:8080/auth/reset-password?token=" + token;
+        String resetLink = "http://localhost:5173/reset-password?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);

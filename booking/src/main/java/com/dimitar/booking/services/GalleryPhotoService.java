@@ -57,6 +57,16 @@ public class GalleryPhotoService {
         galleryPhotoRepository.deleteById(id);
     }
 
+    public GalleryPhotoResponse updateBreed(Long id, String breed) {
+        GalleryPhoto photo = galleryPhotoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Photo not found: " + id));
+
+        photo.setBreed(breed);
+        GalleryPhoto saved = galleryPhotoRepository.save(photo);
+
+        return toResponse(saved);
+    }
+
     private GalleryPhotoResponse toResponse(GalleryPhoto photo){
         return new GalleryPhotoResponse(photo.getId(), photo.getImageUrl(), photo.getBreed());
     }

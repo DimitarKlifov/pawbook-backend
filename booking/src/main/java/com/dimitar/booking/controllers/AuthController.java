@@ -1,6 +1,8 @@
 package com.dimitar.booking.controllers;
 
+import com.dimitar.booking.config.CurrentUserProvider;
 import com.dimitar.booking.dto.*;
+import com.dimitar.booking.entities.User;
 import com.dimitar.booking.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -14,16 +16,18 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, CurrentUserProvider currentUserProvider) {
         this.authService = authService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request){
         authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Registration successful. Pleas check your email to verify your account.");
+                .body("Registration successful. Please check your email to verify your account.");
     }
 
     @GetMapping("/verify")
@@ -53,6 +57,15 @@ public class AuthController {
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserResponse response = authService.updateProfile(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        User user = currentUserProvider.getCurrentUser();
+        UserResponse response = new UserResponse(
+                user.getId(), user.getName(), user.getEmail(),
+                user.getPhoneNumber(), user.getRole());
         return ResponseEntity.ok(response);
     }
 }

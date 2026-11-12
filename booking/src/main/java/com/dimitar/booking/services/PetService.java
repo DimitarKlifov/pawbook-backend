@@ -36,14 +36,9 @@ public class PetService {
     public List<PetResponse> getAllPets(){
         User currentUser = currentUserProvider.getCurrentUser();
 
-        List<Pet> pets;
-        if (currentUser.getRole() == User.Role.GROOMER) {
-            pets = petRepository.findAll();
-        } else {
-            pets = petRepository.findAll().stream()
-                    .filter(pet -> pet.getOwner().getId() == (currentUser.getId()))
-                    .collect(Collectors.toList());
-        }
+        List<Pet> pets = petRepository.findAll().stream()
+                .filter(pet -> pet.getOwner().getId() == (currentUser.getId()))
+                .collect(Collectors.toList());
 
         return pets.stream()
                 .map(this::toResponse)

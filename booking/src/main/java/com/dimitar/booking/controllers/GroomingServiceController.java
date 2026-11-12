@@ -45,6 +45,12 @@ public class GroomingServiceController {
         return ResponseEntity.ok(groomingServiceService.getServiceById(id));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<GroomingServiceResponse> updateService(@PathVariable Long id, @Valid @RequestBody GroomingServiceRequest request) {
+        GroomingServiceResponse response = groomingServiceService.updateService(id, request);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Long id){
         groomingServiceService.deleteService(id);
